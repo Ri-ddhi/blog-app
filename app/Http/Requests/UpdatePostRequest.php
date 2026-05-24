@@ -12,7 +12,7 @@ class UpdatePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,8 +22,17 @@ class UpdatePostRequest extends FormRequest
      */
     public function rules(): array
     {
+        $postId = is_object($this->post) ? $this->post->id : $this->post;
         return [
-            //
+            'title'   => 'required|max:255',
+            'slug'    => 'required|max:255|unique:posts,slug,'.$postId,
+            'body'    => 'required',
+            'status'  => 'required|in:submitted,draft'
         ];
+    }
+    public function messages(): array
+    {
+        return ["title.required" => "Provide the title", "slug.required" => "slug should contain underscore _" ,"body" => "is should be minimun 50 characters"];
+
     }
 }

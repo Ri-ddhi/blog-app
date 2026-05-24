@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdatePostRequest;
+use App\Models\Category;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -25,24 +29,40 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('posts.create');
+        $categories = Category::all();
+        return view('posts.create' , compact('categories'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePostRequest $request)
     {
-        $validated = $request->validate([
-            'title'   => 'required|max:255',
-            'slug'    => 'required|unique:posts,slug|max:255',
-            'body'    => 'required',
-            'status'  => 'required|in:submitted,draft',
+        $validated = $request->validated();
+
+        // 1. Automatically generate a unique slug from the title
+        $slug = Str::slug($validated['title']);
+        $originalSlug = $slug;
+        $count = 1;
+
+        // Keep checking the DB until we find a free slug variation (e.g., 'my-post-1')
+        while (Post::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $count;
+            $count++;
+        }
+
+
+        $post = Post::create([
+            'title'  => $validated['title'],
+            'slug'   => $validated['slug'],
+            'body'   => $validated['body'],
+            'status' => $validated['status'],
+            'user_id' => auth()->id(),
         ]);
 
-        $validated['user_id'] = auth()->id();
-
-        Post::create($validated);
+        // 3. Sync the categories to the pivot table (category_post)
+        // If no checkboxes were ticked, pass an empty array to clear any links
+        $post->categories()->sync($request->input('categories', []));
 
         return redirect()
             ->route('posts.index')
@@ -68,14 +88,9 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Post $post)
+    public function update(UpdatePostRequest $request, Post $post)
     {
-        $validated = $request->validate([
-            'title'   => 'required|max:255',
-            'slug'    => 'required|max:255|unique:posts,slug,' . $post->id,
-            'body'    => 'required',
-            'status'  => 'required|in:submitted,draft',
-        ]);
+        $validated = $request->validated();
 
         $post->update($validated);
 

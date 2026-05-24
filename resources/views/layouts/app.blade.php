@@ -10,7 +10,7 @@
 
 <header>
     <nav>
-        <a href="#">Home</a> | <a href="#">About</a>
+        <a href="{{ route('posts.index') }}">Blogs</a> | <a href="{{ route('login') }}">SignIn/Signup</a>
     </nav>
 </header>
 

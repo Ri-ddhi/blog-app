@@ -18,12 +18,11 @@
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800">All Published Posts</h1>
 
-            {{-- Action buttons for authenticated users --}}
+            {{-- Only management buttons remain here, layout handles guest login links --}}
             @auth
                 <div class="flex items-center space-x-3">
                     <a href="{{ route('posts.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Create New Post</a>
 
-                    {{-- Logout Form and Button --}}
                     <form action="{{ route('logout') }}" method="POST" class="inline">
                         @csrf
                         <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
@@ -39,20 +38,17 @@
                 <div class="bg-white p-6 rounded-lg shadow-md flex justify-between items-start border border-gray-200">
                     <div>
                         <h2 class="text-xl font-semibold text-blue-600 hover:underline">
-                            {{-- FIXED: Changed from $post->slug to standard route binding ($post) --}}
                             <a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a>
                         </h2>
                         <p class="text-gray-500 text-sm mt-1">
-                            {{-- REMOVED: view_count removed here to prevent errors since it's missing in your database --}}
                             By {{ $post->user->name ?? 'Anonymous' }}
                         </p>
-                        {{-- FIXED: Changed from $post->content to $post->body --}}
                         <p class="text-gray-700 mt-2">{{ Str::limit($post->body, 150) }}</p>
                     </div>
 
+                    {{-- Actions shown only to logged-in users --}}
                     @auth
                         <div class="flex space-x-2">
-                            {{-- FIXED: Changed from $post->id to standard route binding ($post) --}}
                             <a href="{{ route('posts.edit', $post) }}" class="text-sm bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Edit</a>
 
                             <form action="{{ route('posts.destroy', $post) }}" method="POST" onsubmit="return confirm('Are you sure?')">

@@ -12,7 +12,7 @@ class StorePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,12 @@ class StorePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title'   => 'required|max:255',
+            'slug'    => 'required|unique:posts,slug|max:255',
+            'body'    => 'required',
+            'status'  => 'required|in:submitted,draft',
+            'categories' => 'nullable|array',          // Must be an array of IDs
+        'categories.*' => 'exists:categories,id',
         ];
     }
 }
