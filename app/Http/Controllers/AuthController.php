@@ -25,7 +25,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            return redirect()->intended('/welcome');
+            return redirect()->intended('/posts');
         }
 
         return back()->withErrors([
@@ -46,7 +46,7 @@ class AuthController extends Controller
         ]);
         Auth::login($user);
         $request->session()->regenerate();
-            return redirect()->intended('/welcome');
+            return redirect()->intended('/posts');
         }
 
 }

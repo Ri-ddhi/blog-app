@@ -2,29 +2,36 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PostController;
+use Illuminate\Support\Facades\Auth;
 
-Route::get('/', function () {
-    return view('register');
+
+
+Route::middleware(['guest'])->group(function () {
+    Route::get('/', function () {
+        return view('register');
+    });
+
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
 });
 
-
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
+Route::middleware(['auth'])->group(function () {
+    Route::resource('posts', PostController::class)->except(['index', 'show']);
 
 
-Route::post('/logout', function (\Illuminate\Http\Request $request) {
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-    return redirect('/login');
-})->name('logout');
+    Route::resource('posts', PostController::class)->only(['index', 'show']);
 
 
-Route::get('/welcome', function () {
-    return "Welcome, " . Auth::user()->name . "! <form action='".route('logout')."' method='POST'>".csrf_field()."<button type='submit'>Logout</button></form>";
-})->middleware('auth');
+    Route::post('/logout', function (\Illuminate\Http\Request $request) {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/login');
+    })->name('logout');
+});
 
 Route::get('/lifecycle-test', function () {
     return response()->json([
@@ -32,5 +39,3 @@ Route::get('/lifecycle-test', function () {
         'timestamp' => now()->toDateTimeString(),
     ]);
 });
-
-
