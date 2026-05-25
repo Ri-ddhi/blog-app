@@ -43,10 +43,11 @@ class AuthController extends Controller
             'name'     => $credentials['name'],
             'email'    => $credentials['email'],
             'password' => Hash::make($credentials['password']), // Securely hashes the password
+            'is_active' => true,
         ]);
         Auth::login($user);
         $request->session()->regenerate();
-            return redirect()->intended('/posts');
+            return redirect('/');
         }
 
 }

@@ -13,8 +13,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware){
         $middleware->redirectTo(
             guests: '/login',
-            users: '/posts'
+            users: '/'
         );
+
+        $middleware->alias([
+            'active' => \App\Http\Middleware\EnsureUserIsActive::class,
+            'log.requests' => \App\Http\Middleware\LogRequestDetails::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

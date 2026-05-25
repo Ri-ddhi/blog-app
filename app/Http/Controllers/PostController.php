@@ -114,6 +114,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        $post->categories()->detach();
         $post->delete();
 
         return redirect()
