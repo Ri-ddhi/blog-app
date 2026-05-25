@@ -31,6 +31,7 @@ class PostController extends Controller
     {
         $categories = Category::all();
         return view('posts.create' , compact('categories'));
+
     }
 
     /**
@@ -57,6 +58,7 @@ class PostController extends Controller
             'slug'   => $validated['slug'],
             'body'   => $validated['body'],
             'status' => $validated['status'],
+
             'user_id' => auth()->id(),
         ]);
 
@@ -82,7 +84,8 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        return view('posts.edit', compact('post'));
+        $categories = Category::all();
+        return view('posts.edit', compact('post', 'categories'));
     }
 
     /**
@@ -92,7 +95,13 @@ class PostController extends Controller
     {
         $validated = $request->validated();
 
-        $post->update($validated);
+        $post->update(['title'  => $validated['title'],
+            'slug'   => $validated['slug'],
+            'body'   => $validated['body'],
+            'status' => $validated['status'],
+        ]);
+
+        $post->categories()->sync($request->input('categories', []));
 
         // Redirect to index with success message
         return redirect()

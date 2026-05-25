@@ -26,13 +26,15 @@ class UpdatePostRequest extends FormRequest
         return [
             'title'   => 'required|max:255',
             'slug'    => 'required|max:255|unique:posts,slug,'.$postId,
-            'body'    => 'required',
-            'status'  => 'required|in:submitted,draft'
+            'body'    => 'required|min:50',
+            'status'  => 'required|in:submitted,draft',
+            'categories' => 'required|array|min:1',
+        'categories.*' => 'exists:categories,id'
         ];
     }
     public function messages(): array
     {
-        return ["title.required" => "Provide the title", "slug.required" => "slug should contain underscore _" ,"body" => "is should be minimun 50 characters"];
+        return ["title.required" => "Provide the title", "slug.required" => "slug should contain underscore _" ,"body" => "is should be minimun 50 characters", "categories.min" => "Please add at least one category"];
 
     }
 }

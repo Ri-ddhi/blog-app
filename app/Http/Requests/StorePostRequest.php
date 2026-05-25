@@ -24,11 +24,21 @@ class StorePostRequest extends FormRequest
     {
         return [
             'title'   => 'required|max:255',
-            'slug'    => 'required|unique:posts,slug|max:255',
-            'body'    => 'required',
+            'slug'    => 'required|unique:posts,slug|max:5',
+            'body'    => 'required|min:50',
             'status'  => 'required|in:submitted,draft',
-            'categories' => 'nullable|array',          // Must be an array of IDs
+            'categories' => 'required|array|min:1',
         'categories.*' => 'exists:categories,id',
         ];
     }
+    public function messages(): array
+    {
+        return ['title.required' => 'Provide the title.',
+            'slug.required'  => 'Slug should contain an underscore (_).',
+            'body.min'       => 'The body should be a minimum of 50 characters.',
+            'body.required'  => 'The body field cannot be left blank.',
+            'categories.min' => "Please add at least one category"];
+
+    }
+
 }

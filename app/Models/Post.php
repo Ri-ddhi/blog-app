@@ -23,6 +23,11 @@ class Post extends Model
         'status',
     ];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function user(): BelongsTo{
         return $this->belongsTo(User::class);
     }

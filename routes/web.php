@@ -5,12 +5,12 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Auth;
 
-// 1. PUBLIC ROUTES (Anyone can visit "/", whether logged in or a guest)
+// 1. PUBLIC ROUTES (Anyone can visit these)
 Route::get('/', [PostController::class, 'index'])->name('posts.index');
-//Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
+Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
 
 
-// 2. GUEST-ONLY ROUTES (Logged-in users are automatically redirected away from here)
+// 2. GUEST-ONLY ROUTES (Logged-in users cannot access these)
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
@@ -21,14 +21,15 @@ Route::middleware(['guest'])->group(function () {
 
 // 3. AUTH-ONLY ROUTES (Only logged-in users can access these)
 Route::middleware(['auth'])->group(function () {
-    // This creates the routes for: create, store, edit, update, and destroy
-    Route::resource('posts', PostController::class );
+
+    // We exclude 'index' and 'show' because they are already defined above as public routes
+    Route::resource('posts', PostController::class)->except(['index', 'show']);
 
     Route::post('/logout', function (\Illuminate\Http\Request $request) {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/'); // Redirect back to the blog home page after logging out
+        return redirect('/');
     })->name('logout');
 });
 
