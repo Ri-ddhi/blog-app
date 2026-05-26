@@ -18,19 +18,21 @@
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800">All Published Posts</h1>
 
-            {{-- Only management buttons remain here, layout handles guest login links --}}
-            @auth
-                <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-3">
+                {{-- Only show Create button if user role has route permission --}}
+                @can('create', App\Models\Post::class)
                     <a href="{{ route('posts.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Create New Post</a>
+                @endcan
 
+                @auth
                     <form action="{{ route('logout') }}" method="POST" class="inline">
                         @csrf
                         <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
                             Logout
                         </button>
                     </form>
-                </div>
-            @endauth
+                @endauth
+            </div>
         </div>
 
         <div class="space-y-4">
@@ -46,18 +48,20 @@
                         <p class="text-gray-700 mt-2">{{ Str::limit($post->body, 150) }}</p>
                     </div>
 
-                    {{-- Actions shown only to logged-in users --}}
-                    @auth
-                        <div class="flex space-x-2">
+                    {{-- 🛡️ Policy-driven buttons replace the generic @auth container --}}
+                    <div class="flex space-x-2">
+                        @can('update', $post)
                             <a href="{{ route('posts.edit', $post) }}" class="text-sm bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Edit</a>
+                        @endcan
 
+                        @can('delete', $post)
                             <form action="{{ route('posts.destroy', $post) }}" method="POST" onsubmit="return confirm('Are you sure?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Delete</button>
                             </form>
-                        </div>
-                    @endauth
+                        @endcan
+                    </div>
                 </div>
             @empty
                 <p class="text-gray-600 text-center">No published posts found.</p>

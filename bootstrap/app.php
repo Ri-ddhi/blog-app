@@ -19,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'active' => \App\Http\Middleware\EnsureUserIsActive::class,
             'log.requests' => \App\Http\Middleware\LogRequestDetails::class,
+            'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'check.permission' => \App\Http\Middleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
